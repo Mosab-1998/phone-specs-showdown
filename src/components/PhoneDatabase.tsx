@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Star, Zap, Camera, Battery } from 'lucide-react';
 import { Phone } from '@/types/phone';
 import { phoneData } from '@/data/phoneData';
 
@@ -37,15 +38,23 @@ const PhoneDatabase: React.FC<PhoneDatabaseProps> = ({
   return (
     <div>
       {/* Brand Filter */}
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Filter by Brand</h3>
-        <div className="flex flex-wrap gap-2">
+      <div className="mb-8">
+        <h3 className="text-xl font-semibold text-white mb-4 flex items-center space-x-2">
+          <Zap className="h-6 w-6 text-purple-400" />
+          <span>Filter by Brand</span>
+        </h3>
+        <div className="flex flex-wrap gap-3">
           {brands.map((brand) => (
             <Button
               key={brand}
               variant={selectedBrand === brand ? "default" : "outline"}
               size="sm"
               onClick={() => setSelectedBrand(brand)}
+              className={
+                selectedBrand === brand
+                  ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white"
+                  : "border-purple-500/30 text-purple-300 hover:bg-purple-500/20"
+              }
             >
               {brand}
             </Button>
@@ -56,42 +65,61 @@ const PhoneDatabase: React.FC<PhoneDatabaseProps> = ({
       {/* Phone Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredPhones.map((phone) => (
-          <Card key={phone.id} className="hover:shadow-lg transition-shadow duration-300">
+          <Card key={phone.id} className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/15 hover:border-purple-500/50 transition-all duration-300 group">
             <CardContent className="p-6">
               <div className="text-center mb-4">
-                <img
-                  src={phone.image}
-                  alt={phone.name}
-                  className="w-32 h-32 object-cover mx-auto rounded-lg mb-4"
-                />
-                <h3 className="font-semibold text-lg text-gray-900 mb-1">{phone.name}</h3>
-                <p className="text-gray-600 mb-2">{phone.brand}</p>
-                <p className="text-2xl font-bold text-indigo-600">${phone.price.toLocaleString()}</p>
+                <div className="relative mb-4">
+                  <img
+                    src={phone.image}
+                    alt={phone.name}
+                    className="w-32 h-32 object-cover mx-auto rounded-xl group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                    <Star className="h-3 w-3 text-white" />
+                  </div>
+                </div>
+                <h3 className="font-semibold text-lg text-white mb-1">{phone.name}</h3>
+                <p className="text-purple-300 mb-2">{phone.brand}</p>
+                <p className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  ${phone.price.toLocaleString()}
+                </p>
               </div>
 
-              <div className="space-y-2 mb-4">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Display:</span>
-                  <span className="font-medium">{phone.specifications.display.size}</span>
+              <div className="space-y-3 mb-4">
+                <div className="flex justify-between items-center text-sm bg-white/5 rounded-lg p-2">
+                  <span className="text-gray-300 flex items-center space-x-1">
+                    <span>📱</span>
+                    <span>Display:</span>
+                  </span>
+                  <span className="font-medium text-white">{phone.specifications.display.size}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Storage:</span>
-                  <span className="font-medium">{phone.specifications.memory.storage}</span>
+                <div className="flex justify-between items-center text-sm bg-white/5 rounded-lg p-2">
+                  <span className="text-gray-300 flex items-center space-x-1">
+                    <span>💾</span>
+                    <span>Storage:</span>
+                  </span>
+                  <span className="font-medium text-white">{phone.specifications.memory.storage}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Camera:</span>
-                  <span className="font-medium">{phone.specifications.camera.rear}</span>
+                <div className="flex justify-between items-center text-sm bg-white/5 rounded-lg p-2">
+                  <span className="text-gray-300 flex items-center space-x-1">
+                    <Camera className="h-3 w-3" />
+                    <span>Camera:</span>
+                  </span>
+                  <span className="font-medium text-white">{phone.specifications.camera.rear}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Battery:</span>
-                  <span className="font-medium">{phone.specifications.battery.capacity}</span>
+                <div className="flex justify-between items-center text-sm bg-white/5 rounded-lg p-2">
+                  <span className="text-gray-300 flex items-center space-x-1">
+                    <Battery className="h-3 w-3" />
+                    <span>Battery:</span>
+                  </span>
+                  <span className="font-medium text-white">{phone.specifications.battery.capacity}</span>
                 </div>
               </div>
 
               <div className="mb-4">
                 <div className="flex flex-wrap gap-1">
                   {phone.features.slice(0, 3).map((feature, index) => (
-                    <Badge key={index} variant="secondary" className="text-xs">
+                    <Badge key={index} variant="secondary" className="text-xs bg-purple-500/20 text-purple-300 border-purple-500/30">
                       {feature}
                     </Badge>
                   ))}
@@ -101,10 +129,28 @@ const PhoneDatabase: React.FC<PhoneDatabaseProps> = ({
               <Button
                 onClick={() => onPhoneSelect(phone)}
                 disabled={isPhoneSelected(phone.id) || !canSelectMore}
-                className="w-full"
+                className={
+                  isPhoneSelected(phone.id)
+                    ? "w-full bg-green-500/20 text-green-400 border-green-500/30"
+                    : canSelectMore
+                    ? "w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                    : "w-full bg-gray-500/20 text-gray-400"
+                }
                 variant={isPhoneSelected(phone.id) ? "secondary" : "default"}
               >
-                {isPhoneSelected(phone.id) ? 'Selected' : canSelectMore ? 'Select for Comparison' : 'Max 2 Phones'}
+                {isPhoneSelected(phone.id) ? (
+                  <>
+                    <Star className="h-4 w-4 mr-2" />
+                    Selected
+                  </>
+                ) : canSelectMore ? (
+                  <>
+                    <Zap className="h-4 w-4 mr-2" />
+                    Select for Comparison
+                  </>
+                ) : (
+                  'Max 2 Phones'
+                )}
               </Button>
             </CardContent>
           </Card>
@@ -113,7 +159,11 @@ const PhoneDatabase: React.FC<PhoneDatabaseProps> = ({
 
       {filteredPhones.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">No phones found matching your criteria.</p>
+          <div className="mb-4">
+            <Zap className="h-16 w-16 text-purple-400 mx-auto opacity-50" />
+          </div>
+          <p className="text-purple-300 text-lg">No phones found matching your criteria.</p>
+          <p className="text-gray-400 text-sm mt-2">Try adjusting your search or filter settings.</p>
         </div>
       )}
     </div>
