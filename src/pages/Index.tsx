@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Search, Smartphone, Zap, Shield, Camera, Battery, Cpu, Star, TrendingUp, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,12 +10,30 @@ import PhoneComparison from '@/components/PhoneComparison';
 import StatsWidget from '@/components/StatsWidget';
 import TrendingPhonesWidget from '@/components/TrendingPhonesWidget';
 import FeatureSpotlight from '@/components/FeatureSpotlight';
+import SearchSuggestions from '@/components/SearchSuggestions';
 import { Phone } from '@/types/phone';
+import { phoneData } from '@/data/phoneData';
 
 const Index = () => {
   const [selectedPhones, setSelectedPhones] = useState<Phone[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showComparison, setShowComparison] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handlePhoneSelect = (phone: Phone) => {
     if (selectedPhones.length < 2 && !selectedPhones.find(p => p.id === phone.id)) {
@@ -30,6 +48,22 @@ const Index = () => {
   const handleCompare = () => {
     if (selectedPhones.length === 2) {
       setShowComparison(true);
+    }
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    setShowSuggestions(value.trim().length > 0);
+  };
+
+  const handleSuggestionClick = (phone: Phone) => {
+    setSearchTerm(phone.name);
+    setShowSuggestions(false);
+    // Scroll to phone database section
+    const phoneSection = document.getElementById('phone-database');
+    if (phoneSection) {
+      phoneSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -52,14 +86,21 @@ const Index = () => {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="relative">
+              <div className="relative" ref={searchContainerRef}>
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400 h-4 w-4" />
                 <Input
                   type="text"
                   placeholder="Search phones..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={handleSearchChange}
+                  onFocus={() => setShowSuggestions(searchTerm.trim().length > 0)}
                   className="pl-10 w-64 bg-white/10 border-purple-500/30 text-white placeholder:text-purple-300"
+                />
+                <SearchSuggestions
+                  phones={phoneData}
+                  searchTerm={searchTerm}
+                  onPhoneClick={handleSuggestionClick}
+                  isVisible={showSuggestions}
                 />
               </div>
             </div>
@@ -86,13 +127,13 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             <StatsWidget 
               icon={Smartphone} 
-              value="500+" 
+              value="20+" 
               label="Phones in Database" 
               color="purple" 
             />
             <StatsWidget 
               icon={Zap} 
-              value="50+" 
+              value="10+" 
               label="Brands Covered" 
               color="pink" 
             />
@@ -172,7 +213,7 @@ const Index = () => {
       )}
 
       {/* Phone Database or Comparison */}
-      <section className="py-8 px-4 sm:px-6 lg:px-8">
+      <section className="py-8 px-4 sm:px-6 lg:px-8" id="phone-database">
         <div className="max-w-7xl mx-auto">
           {showComparison && selectedPhones.length === 2 ? (
             <div>
